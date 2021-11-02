@@ -1,0 +1,35 @@
+<html>
+<head>
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
+</head>
+    <body>
+        <input type="file" name="test" id="test"/>
+        <div></div>
+    </body>
+</html>
+<script>
+$(document).ready(function(){
+
+    $('#test').on('change', function() {
+        $('div').append("<input type='text'>")
+        var promise = getBase64(this.files[0]);
+        promise.then(function(result) {
+            console.log(result);
+            $('input[type=text]').val(result)
+        });
+    })
+    
+
+    function getBase64(file, onLoadCallback) {
+        return new Promise(function(resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function() { resolve(reader.result); };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+});
+   
+</script>
