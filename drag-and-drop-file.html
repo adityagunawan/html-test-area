@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Upload File With Drag And Drop File</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style type="text/css">
+        body {
+            padding: 20px
+        }
+
+        #drop_zone {
+            background-color: #eeeeee;
+            border: #bdbdbd 5px dashed;
+            width: 100%;
+            padding: 60px 0;
+            border-radius: 15px;
+        }
+
+        #drop_zone p {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        #btn_upload,
+        #selectfile {
+            display: none;
+        }
+
+        #pilih_foto {
+            background-color: #00ADC6;
+            color: white;
+            font-weight: 600;
+            width: 8rem;
+            border-radius: 25px;
+        }
+
+        #preview {
+            max-width: 150px;
+            height: auto;
+            object-fit: contain;
+            /* cover, contain, fill, scale-down */
+            object-position: center;
+            vertical-align: middle;
+        }
+    </style>
+
+<body>
+    <div id="drop_zone">
+        <p>
+            <image id="preview" src="#"></image>
+        </p>
+        <p>Seret dan letakan foto yang diunggah disini atau</p>
+        <p id="file_info"></p>
+        <input type="file" id="selectfile">
+        <p id="message_info"></p>
+        <p><button id="pilih_foto" class="btn">PILIH FOTO</button></p>
+    </div>
+    <div>
+        <progress id="progressBar" value="0" max="100" style="width:100%;"></progress>
+        <h3 id="status"></h3>
+        <p id="loaded_n_total"></p>
+    </div>
+    <script>
+        var fileobj;
+        $(document).ready(function () {
+            $('#preview').attr('src', 'Vector.png');
+            $("#drop_zone").on("dragover", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            });
+            $("#drop_zone").on("drop", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                fileobj = event.originalEvent.dataTransfer.files[0];
+                var fname = fileobj.name;
+                var fsize = fileobj.size;
+                if (fname.length > 0) {
+                    // document.getElementById('file_info').innerHTML = "File name : " + fname + ' <br>File size : ' + bytesToSize(fsize);
+                    previewImage(fileobj);
+                }
+                document.getElementById('selectfile').files[0] = fileobj;
+                document.getElementById('btn_upload').style.display = "inline";
+            });
+            $('#pilih_foto').click(function () {
+                /*normal file pick*/
+                document.getElementById('selectfile').click();
+                document.getElementById('selectfile').onchange = function () {
+                    fileobj = document.getElementById('selectfile').files[0];
+                    var fname = fileobj.name;
+                    var fsize = fileobj.size;
+                    if (fname.length > 0) {
+                        // document.getElementById('file_info').innerHTML = "File name : " + fname + ' <br>File size : ' + bytesToSize(fsize);
+                        previewImage(fileobj);
+                    }
+                };
+            });
+        });
+
+
+        function bytesToSize(bytes) {
+            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            if (bytes == 0) return '0 Byte';
+            var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+            return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+        }
+
+        function previewImage(file) {
+            var img = URL.createObjectURL(file);
+            $('#preview').attr('src', URL.createObjectURL(file));
+
+            callAjax()
+        }
+
+        function callAjax() {
+            $.ajax({
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    console.log('xhr here')
+                    xhr.upload.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            console.log(percentComplete);
+
+                            if (percentComplete === 100) {
+
+                            }
+
+                        }
+                    }, false);
+
+                    return xhr;
+                },
+                url: 'http://localhost/api/post',
+                type: "GET",
+                // data: JSON.stringify(fileuploaddata),
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result) {
+                    console.log(result);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
